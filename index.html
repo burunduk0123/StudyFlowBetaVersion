@@ -5,76 +5,22 @@
 <title>StudyFlow</title>
 
 <style>
-
 body{font-family:Arial;margin:0;background:#f5f5f5;}
-
-header{
-background:#5bc0de;
-padding:20px;
-text-align:center;
-font-size:40px;
-color:white;
-}
-
-nav{
-background:#ddd;
-padding:10px;
-text-align:center;
-}
-
-nav button{
-margin:5px;
-padding:8px 15px;
-cursor:pointer;
-}
-
-.container{
-display:flex;
-padding:20px;
-gap:20px;
-}
-
+header{background:#5bc0de;padding:20px;text-align:center;font-size:40px;color:white;}
+nav{background:#ddd;padding:10px;text-align:center;}
+nav button{margin:5px;padding:8px 15px;cursor:pointer;}
+.container{display:flex;padding:20px;gap:20px;}
 .left{width:250px;}
 .right{flex:1;}
-
-.card{
-background:white;
-padding:15px;
-margin-bottom:15px;
-border-radius:10px;
-box-shadow:0 0 5px rgba(0,0,0,0.2);
-}
-
-.task{
-background:#eee;
-padding:10px;
-margin:10px 0;
-border-radius:8px;
-cursor:pointer;
-}
-
+.card{background:white;padding:15px;margin-bottom:15px;border-radius:10px;box-shadow:0 0 5px rgba(0,0,0,0.2);}
+.task{background:#eee;padding:10px;margin:10px 0;border-radius:8px;cursor:pointer;}
 .done{opacity:0.6;text-decoration:line-through;}
 .selected{border:2px solid #5bc0de;}
-
 .progress{background:#eee;border-radius:10px;}
 .bar{height:20px;background:green;width:0%;}
-
 .hidden{display:none;}
-
-.calendar{
-display:grid;
-grid-template-columns:repeat(7,1fr);
-gap:5px;
-}
-
-.day{
-background:white;
-padding:10px;
-border-radius:5px;
-min-height:80px;
-font-size:12px;
-}
-
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.day{background:white;padding:10px;border-radius:5px;min-height:80px;font-size:12px;}
 </style>
 
 </head>
@@ -134,6 +80,8 @@ font-size:12px;
 <div id="calendarPage" class="container hidden">
 <div class="card" style="width:100%">
 <h3>Calendar</h3>
+<button onclick="changeMonth(-7)">Previous</button>
+<button onclick="changeMonth(7)">Next</button>
 <div id="calendar" class="calendar"></div>
 </div>
 </div>
@@ -142,11 +90,23 @@ font-size:12px;
 <div id="settingsPage" class="container hidden">
 <div class="card">
 <h3>Settings</h3>
+<label>Show range:</label>
 <select id="range" onchange="render()">
 <option value="7">1 week</option>
 <option value="14">2 weeks</option>
 <option value="21">3 weeks</option>
 <option value="30">1 month</option>
+<option value="60">2 months</option>
+<option value="90">3 months</option>
+<option value="120">4 months</option>
+<option value="150">5 months</option>
+<option value="180">6 months</option>
+<option value="210">7 months</option>
+<option value="240">8 months</option>
+<option value="270">9 months</option>
+<option value="300">10 months</option>
+<option value="330">11 months</option>
+<option value="365">1 year</option>
 </select>
 </div>
 </div>
@@ -206,16 +166,15 @@ font-size:12px;
 </div>
 
 <script>
-
 let tasks=[]
 let selected=null
+let calendarOffset=0
 
 function showPage(page){
 document.getElementById("tasksPage").classList.add("hidden")
 document.getElementById("calendarPage").classList.add("hidden")
 document.getElementById("settingsPage").classList.add("hidden")
 document.getElementById("infoPage").classList.add("hidden")
-
 document.getElementById(page+"Page").classList.remove("hidden")
 }
 
@@ -231,22 +190,12 @@ render()
 }
 
 function clearAll(){tasks=[];render()}
-
-function completeTask(){
-if(selected==null) return
-tasks[selected].done=true
-render()
-}
-
-function attachFile(){
-if(selected==null) return
-let f=fileInput.files[0]
-tasks[selected].file=f?f.name:null
-render()
-}
+function completeTask(){if(selected==null) return; tasks[selected].done=true; render()}
+function attachFile(){if(selected==null) return; let f=fileInput.files[0]; tasks[selected].file=f?f.name:null; render()}
+function rangeSelect(){return document.getElementById("range").value}
+function changeMonth(days){calendarOffset+=days; render()}
 
 function render(){
-
 let range=parseInt(rangeSelect())
 let now=new Date()
 
@@ -263,7 +212,6 @@ filtered.forEach(t=>{
 let div=document.createElement("div")
 div.className="task"
 if(t.done) div.classList.add("done")
-
 div.innerHTML=`<b>${t.subject}</b><br>${t.desc}<br>${t.date}`
 div.onclick=()=>{selected=tasks.indexOf(t);render()}
 taskList.appendChild(div)
@@ -276,27 +224,25 @@ document.getElementById("percent").innerText=percent+"%"
 
 // CALENDAR
 calendar.innerHTML=""
-for(let i=1;i<=30;i++){
+let startDate=new Date()
+startDate.setDate(startDate.getDate()+calendarOffset)
+for(let i=0;i<range;i++){
 let d=document.createElement("div")
 d.className="day"
-d.innerHTML="<b>"+i+"</b>"
+let dayDate=new Date(startDate)
+dayDate.setDate(startDate.getDate()+i)
+d.innerHTML="<b>"+dayDate.getDate()+"/"+(dayDate.getMonth()+1)+"</b>"
 
 filtered.forEach(t=>{
-let day=new Date(t.date).getDate()
-if(day===i){
+let tDate=new Date(t.date)
+if(tDate.toDateString()===dayDate.toDateString()){
 d.innerHTML+="<br>"+t.subject
 }
 })
 
 calendar.appendChild(d)
 }
-
 }
-
-function rangeSelect(){
-return document.getElementById("range").value
-}
-
 </script>
 
 </body>
