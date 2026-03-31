@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StudyFlow Beta</title>
+
+<style>
+
+body{
+font-family: Arial;
+margin:0;
+background:#f0f2f5;
+}
+
+header{
+background:#5bc0de;
+padding:20px;
+text-align:center;
+font-size:32px;
+color:white;
+font-weight:bold;
+}
+
+nav{
+background:#ddd;
+padding:10px;
+text-align:center;
+}
+
+nav button{
+margin:5px;
+padding:8px 15px;
+}
+
+.container{
+display:flex;
+gap:20px;
+padding:20px;
+}
+
+.left{
+width:250px;
+}
+
+.right{
+flex:1;
+}
+
+.card{
+background:white;
+padding:15px;
+margin-bottom:15px;
+border-radius:10px;
+box-shadow:0 0 5px rgba(0,0,0,0.1);
+}
+
+.task{
+background:#eee;
+padding:10px;
+margin:10px 0;
+border-radius:8px;
+cursor:pointer;
+}
+
+.selected{
+border:2px solid #5bc0de;
+}
+
+.done{
+text-decoration:line-through;
+opacity:0.6;
+}
+
+.progress{
+background:#eee;
+border-radius:10px;
+overflow:hidden;
+}
+
+.bar{
+height:20px;
+background:#5cb85c;
+width:0%;
+}
+
+input{
+width:100%;
+padding:5px;
+margin-bottom:10px;
+}
+
+button{
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>StudyFlow</header>
+
+<nav>
+<button>Tasks</button>
+<button>Calendar</button>
+<button>Settings</button>
+</nav>
+
+<div class="container">
+
+<div class="left">
+
+<div class="card">
+<h3>Add Task</h3>
+
+<input id="subject" placeholder="Subject">
+<input id="desc" placeholder="Task">
+<input id="date" type="date">
+
+<button onclick="addTask()">Add Task</button>
+</div>
+
+<div class="card">
+<h3>Actions</h3>
+<button onclick="completeTask()">Mark as Done</button>
+</div>
+
+</div>
+
+<div class="right">
+
+<div class="card">
+<h3>Tasks</h3>
+<div id="taskList"></div>
+</div>
+
+<div class="card">
+<h3>Progress</h3>
+
+<div class="progress">
+<div id="bar" class="bar"></div>
+</div>
+
+<p id="percent">0% completed</p>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let tasks = []
+let selectedIndex = null
+
+function addTask(){
+
+let subject = document.getElementById("subject").value
+let desc = document.getElementById("desc").value
+let date = document.getElementById("date").value
+
+if(!subject || !desc) return
+
+tasks.push({
+subject,
+desc,
+date,
+done:false
+})
+
+render()
+}
+
+function render(){
+
+let list = document.getElementById("taskList")
+list.innerHTML = ""
+
+tasks.forEach((t,i)=>{
+
+let div = document.createElement("div")
+div.className = "task"
+
+if(t.done) div.classList.add("done")
+if(i===selectedIndex) div.classList.add("selected")
+
+div.innerHTML = `
+<b>${t.subject}</b><br>
+${t.desc}<br>
+${t.date}
+`
+
+div.onclick = ()=>{
+selectedIndex = i
+render()
+}
+
+list.appendChild(div)
+
+})
+
+updateProgress()
+}
+
+function completeTask(){
+
+if(selectedIndex === null) return
+
+tasks[selectedIndex].done = true
+render()
+}
+
+function updateProgress(){
+
+let done = tasks.filter(t=>t.done).length
+let percent = tasks.length ? Math.round(done/tasks.length*100) : 0
+
+document.getElementById("bar").style.width = percent + "%"
+document.getElementById("percent").innerText = percent + "% completed"
+
+}
+
+</script>
+
+</body>
+</html>
