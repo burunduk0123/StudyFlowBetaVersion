@@ -1,98 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>StudyFlow Beta</title>
+<title>StudyFlow Beta+</title>
 
 <style>
-
-body{
-font-family: Arial;
-margin:0;
-background:#f0f2f5;
-}
-
-header{
-background:#5bc0de;
-padding:20px;
-text-align:center;
-font-size:32px;
-color:white;
-font-weight:bold;
-}
-
-nav{
-background:#ddd;
-padding:10px;
-text-align:center;
-}
-
-nav button{
-margin:5px;
-padding:8px 15px;
-}
-
-.container{
-display:flex;
-gap:20px;
-padding:20px;
-}
-
-.left{
-width:250px;
-}
-
-.right{
-flex:1;
-}
-
-.card{
-background:white;
-padding:15px;
-margin-bottom:15px;
-border-radius:10px;
-box-shadow:0 0 5px rgba(0,0,0,0.1);
-}
-
-.task{
-background:#eee;
-padding:10px;
-margin:10px 0;
-border-radius:8px;
-cursor:pointer;
-}
-
-.selected{
-border:2px solid #5bc0de;
-}
-
-.done{
-text-decoration:line-through;
-opacity:0.6;
-}
-
-.progress{
-background:#eee;
-border-radius:10px;
-overflow:hidden;
-}
-
-.bar{
-height:20px;
-background:#5cb85c;
-width:0%;
-}
-
-input{
-width:100%;
-padding:5px;
-margin-bottom:10px;
-}
-
-button{
-cursor:pointer;
-}
-
+body{font-family:Arial;margin:0;background:#f0f2f5;}
+header{background:#5bc0de;padding:20px;text-align:center;color:white;font-size:30px;}
+.container{display:flex;gap:20px;padding:20px;}
+.left{width:250px;}
+.right{flex:1;}
+.card{background:white;padding:15px;margin-bottom:15px;border-radius:10px;}
+.task{background:#eee;padding:10px;margin:10px 0;border-radius:8px;cursor:pointer;}
+.selected{border:2px solid blue;}
+.done{text-decoration:line-through;opacity:0.6;}
+.progress{background:#ddd;border-radius:10px;}
+.bar{height:20px;background:green;width:0%;}
 </style>
 </head>
 
@@ -100,29 +23,34 @@ cursor:pointer;
 
 <header>StudyFlow</header>
 
-<nav>
-<button>Tasks</button>
-<button>Calendar</button>
-<button>Settings</button>
-</nav>
-
 <div class="container">
 
 <div class="left">
 
 <div class="card">
 <h3>Add Task</h3>
-
-<input id="subject" placeholder="Subject">
-<input id="desc" placeholder="Task">
-<input id="date" type="date">
-
-<button onclick="addTask()">Add Task</button>
+<input id="subject" placeholder="Subject"><br><br>
+<input id="desc" placeholder="Task"><br><br>
+<input id="date" type="date"><br><br>
+<button onclick="addTask()">Add</button>
 </div>
 
 <div class="card">
 <h3>Actions</h3>
-<button onclick="completeTask()">Mark as Done</button>
+<button onclick="completeTask()">Complete</button><br><br>
+<button onclick="clearAll()">Clear All</button><br><br>
+<input type="file" id="fileInput">
+<button onclick="attachFile()">Attach File</button>
+</div>
+
+<div class="card">
+<h3>Settings</h3>
+<select id="range" onchange="render()">
+<option value="7">1 week</option>
+<option value="14">2 weeks</option>
+<option value="21">3 weeks</option>
+<option value="30">1 month</option>
+</select>
 </div>
 
 </div>
@@ -135,14 +63,14 @@ cursor:pointer;
 </div>
 
 <div class="card">
-<h3>Progress</h3>
-
-<div class="progress">
-<div id="bar" class="bar"></div>
+<h3>Calendar</h3>
+<div id="calendar"></div>
 </div>
 
-<p id="percent">0% completed</p>
-
+<div class="card">
+<h3>Progress</h3>
+<div class="progress"><div id="bar" class="bar"></div></div>
+<p id="percent">0%</p>
 </div>
 
 </div>
@@ -151,73 +79,88 @@ cursor:pointer;
 
 <script>
 
-let tasks = []
-let selectedIndex = null
+let tasks=[]
+let selected=null
 
 function addTask(){
+let t={
+subject:subject.value,
+desc:desc.value,
+date:date.value,
+done:false,
+file:null
+}
+tasks.push(t)
+render()
+}
 
-let subject = document.getElementById("subject").value
-let desc = document.getElementById("desc").value
-let date = document.getElementById("date").value
+function clearAll(){
+tasks=[]
+render()
+}
 
-if(!subject || !desc) return
+function attachFile(){
+if(selected==null) return
+let file=document.getElementById("fileInput").files[0]
+tasks[selected].file=file?file.name:null
+render()
+}
 
-tasks.push({
-subject,
-desc,
-date,
-done:false
-})
-
+function completeTask(){
+if(selected==null) return
+tasks[selected].done=true
 render()
 }
 
 function render(){
 
-let list = document.getElementById("taskList")
-list.innerHTML = ""
+let range=parseInt(document.getElementById("range").value)
+let now=new Date()
 
-tasks.forEach((t,i)=>{
-
-let div = document.createElement("div")
-div.className = "task"
-
-if(t.done) div.classList.add("done")
-if(i===selectedIndex) div.classList.add("selected")
-
-div.innerHTML = `
-<b>${t.subject}</b><br>
-${t.desc}<br>
-${t.date}
-`
-
-div.onclick = ()=>{
-selectedIndex = i
-render()
-}
-
-list.appendChild(div)
-
+// фильтр по диапазону
+let filtered=tasks.filter(t=>{
+let d=new Date(t.date)
+let diff=(d-now)/(1000*60*60*24)
+return diff<=range
 })
 
-updateProgress()
-}
+// сортировка по дате
+filtered.sort((a,b)=> new Date(a.date)-new Date(b.date))
 
-function completeTask(){
+// задачи
+taskList.innerHTML=""
+filtered.forEach((t,i)=>{
+let div=document.createElement("div")
+div.className="task"
 
-if(selectedIndex === null) return
+if(t.done) div.classList.add("done")
+if(tasks.indexOf(t)===selected) div.classList.add("selected")
 
-tasks[selectedIndex].done = true
-render()
-}
+div.innerHTML=`
+<b>${t.subject}</b><br>
+${t.desc}<br>
+${t.date}<br>
+${t.file? "📎 "+t.file:""}
+`
 
-function updateProgress(){
+div.onclick=()=>{selected=tasks.indexOf(t);render()}
+taskList.appendChild(div)
+})
 
-let done = tasks.filter(t=>t.done).length
-let percent = tasks.length ? Math.round(done/tasks.length*100) : 0
+// прогресс
+let done=filtered.filter(t=>t.done).length
+let percent=filtered.length?Math.round(done/filtered.length*100):0
+bar.style.width=percent+"%"
+percentText=percent+"%"
+document.getElementById("percent").innerText=percent+"%"
 
-document.getElementById("bar").style.width = percent + "%"
-document.getElementById("percent").innerText = percent + "% completed"
+// календарь (простой)
+calendar.innerHTML=""
+filtered.forEach(t=>{
+let div=document.createElement("div")
+div.innerText=t.date+" - "+t.subject
+calendar.appendChild(div)
+})
 
 }
 
