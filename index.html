@@ -6,18 +6,13 @@
 
 <style>
 
-body{
-font-family: Arial;
-background:#f5f5f5;
-margin:0;
-}
+body{font-family:Arial;margin:0;background:#f5f5f5;}
 
 header{
 background:#5bc0de;
 padding:20px;
 text-align:center;
 font-size:40px;
-font-weight:bold;
 color:white;
 }
 
@@ -30,6 +25,7 @@ text-align:center;
 nav button{
 margin:5px;
 padding:8px 15px;
+cursor:pointer;
 }
 
 .container{
@@ -38,13 +34,8 @@ padding:20px;
 gap:20px;
 }
 
-.left{
-width:250px;
-}
-
-.right{
-flex:1;
-}
+.left{width:250px;}
+.right{flex:1;}
 
 .card{
 background:white;
@@ -62,33 +53,26 @@ border-radius:8px;
 cursor:pointer;
 }
 
-.selected{
-border:2px solid #5bc0de;
+.done{opacity:0.6;text-decoration:line-through;}
+.selected{border:2px solid #5bc0de;}
+
+.progress{background:#eee;border-radius:10px;}
+.bar{height:20px;background:green;width:0%;}
+
+.hidden{display:none;}
+
+.calendar{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:5px;
 }
 
-.done{
-text-decoration:line-through;
-opacity:0.6;
-}
-
-.progress{
-background:#eee;
-border-radius:10px;
-overflow:hidden;
-}
-
-.bar{
-height:20px;
-background:#5cb85c;
-width:0%;
-}
-
-.info{
+.day{
 background:white;
-margin:20px;
-padding:20px;
-border-radius:10px;
-box-shadow:0 0 5px rgba(0,0,0,0.2);
+padding:10px;
+border-radius:5px;
+min-height:80px;
+font-size:12px;
 }
 
 </style>
@@ -100,13 +84,76 @@ box-shadow:0 0 5px rgba(0,0,0,0.2);
 <header>StudyFlow</header>
 
 <nav>
-<button>Tasks</button>
-<button>Calendar</button>
-<button>Settings</button>
+<button onclick="showPage('tasks')">Tasks</button>
+<button onclick="showPage('calendar')">Calendar</button>
+<button onclick="showPage('settings')">Settings</button>
+<button onclick="showPage('info')">Additional Information</button>
 </nav>
 
-<!-- ADDITIONAL INFO (TOP) -->
-<div class="info">
+<!-- TASKS PAGE -->
+<div id="tasksPage" class="container">
+
+<div class="left">
+
+<div class="card">
+<h3>Add Task</h3>
+<input id="subject" placeholder="Subject"><br><br>
+<input id="desc" placeholder="Task"><br><br>
+<input id="date" type="date"><br><br>
+<button onclick="addTask()">Add</button>
+</div>
+
+<div class="card">
+<h3>Actions</h3>
+<button onclick="completeTask()">Complete</button><br><br>
+<button onclick="clearAll()">Clear All</button><br><br>
+<input type="file" id="fileInput">
+<button onclick="attachFile()">Attach File</button>
+</div>
+
+</div>
+
+<div class="right">
+
+<div class="card">
+<h3>Tasks</h3>
+<div id="taskList"></div>
+</div>
+
+<div class="card">
+<h3>Progress</h3>
+<div class="progress"><div id="bar" class="bar"></div></div>
+<p id="percent">0%</p>
+</div>
+
+</div>
+
+</div>
+
+<!-- CALENDAR PAGE -->
+<div id="calendarPage" class="container hidden">
+<div class="card" style="width:100%">
+<h3>Calendar</h3>
+<div id="calendar" class="calendar"></div>
+</div>
+</div>
+
+<!-- SETTINGS PAGE -->
+<div id="settingsPage" class="container hidden">
+<div class="card">
+<h3>Settings</h3>
+<select id="range" onchange="render()">
+<option value="7">1 week</option>
+<option value="14">2 weeks</option>
+<option value="21">3 weeks</option>
+<option value="30">1 month</option>
+</select>
+</div>
+</div>
+
+<!-- INFO PAGE -->
+<div id="infoPage" class="container hidden">
+<div class="card" style="width:100%">
 
 <h2>Additional Information</h2>
 
@@ -132,11 +179,11 @@ box-shadow:0 0 5px rgba(0,0,0,0.2);
 </ul>
 
 <h3>Sponsor Interview</h3>
-<p><b>Q:</b> What problems do students have?</p>
-<p><b>A:</b> Time management and organization.</p>
-<p><b>Q:</b> Is this useful?</p>
-<p><b>A:</b> Yes, if simple.</p>
-<p><b>Conclusion:</b> Simplicity is key.</p>
+<p>Q: What problems do students have?</p>
+<p>A: Time management and organization.</p>
+<p>Q: Is this useful?</p>
+<p>A: Yes, if simple.</p>
+<p>Conclusion: Simplicity is key.</p>
 
 <h3>About the Author</h3>
 <p>Aluadin Damir – BIL, IB MYP Year 5</p>
@@ -156,73 +203,6 @@ box-shadow:0 0 5px rgba(0,0,0,0.2);
 </ul>
 
 </div>
-
-<!-- APP -->
-<div class="container">
-
-<div class="left">
-
-<div class="card">
-<h3>Add Task</h3>
-
-<input id="subject" placeholder="Subject"><br><br>
-<input id="desc" placeholder="Task"><br><br>
-<input id="date" type="date"><br><br>
-
-<button onclick="addTask()">Add</button>
-
-</div>
-
-<div class="card">
-<h3>Actions</h3>
-
-<button onclick="completeTask()">Complete</button><br><br>
-<button onclick="clearAll()">Clear All</button><br><br>
-
-<input type="file" id="fileInput">
-<button onclick="attachFile()">Attach File</button>
-
-</div>
-
-<div class="card">
-<h3>Settings</h3>
-
-<select id="range" onchange="render()">
-<option value="7">1 week</option>
-<option value="14">2 weeks</option>
-<option value="21">3 weeks</option>
-<option value="30">1 month</option>
-</select>
-
-</div>
-
-</div>
-
-<div class="right">
-
-<div class="card">
-<h3>Tasks</h3>
-<div id="taskList"></div>
-</div>
-
-<div class="card">
-<h3>Calendar</h3>
-<div id="calendar"></div>
-</div>
-
-<div class="card">
-<h3>Progress</h3>
-
-<div class="progress">
-<div id="bar" class="bar"></div>
-</div>
-
-<p id="percent">0%</p>
-
-</div>
-
-</div>
-
 </div>
 
 <script>
@@ -230,29 +210,27 @@ box-shadow:0 0 5px rgba(0,0,0,0.2);
 let tasks=[]
 let selected=null
 
+function showPage(page){
+document.getElementById("tasksPage").classList.add("hidden")
+document.getElementById("calendarPage").classList.add("hidden")
+document.getElementById("settingsPage").classList.add("hidden")
+document.getElementById("infoPage").classList.add("hidden")
+
+document.getElementById(page+"Page").classList.remove("hidden")
+}
+
 function addTask(){
-let t={
+tasks.push({
 subject:subject.value,
 desc:desc.value,
 date:date.value,
 done:false,
 file:null
-}
-tasks.push(t)
+})
 render()
 }
 
-function clearAll(){
-tasks=[]
-render()
-}
-
-function attachFile(){
-if(selected==null) return
-let file=document.getElementById("fileInput").files[0]
-tasks[selected].file=file?file.name:null
-render()
-}
+function clearAll(){tasks=[];render()}
 
 function completeTask(){
 if(selected==null) return
@@ -260,9 +238,16 @@ tasks[selected].done=true
 render()
 }
 
+function attachFile(){
+if(selected==null) return
+let f=fileInput.files[0]
+tasks[selected].file=f?f.name:null
+render()
+}
+
 function render(){
 
-let range=parseInt(document.getElementById("range").value)
+let range=parseInt(rangeSelect())
 let now=new Date()
 
 let filtered=tasks.filter(t=>{
@@ -277,34 +262,39 @@ taskList.innerHTML=""
 filtered.forEach(t=>{
 let div=document.createElement("div")
 div.className="task"
-
 if(t.done) div.classList.add("done")
-if(tasks.indexOf(t)===selected) div.classList.add("selected")
 
-div.innerHTML=`
-<b>${t.subject}</b><br>
-${t.desc}<br>
-${t.date}<br>
-${t.file? "📎 "+t.file:""}
-`
-
+div.innerHTML=`<b>${t.subject}</b><br>${t.desc}<br>${t.date}`
 div.onclick=()=>{selected=tasks.indexOf(t);render()}
 taskList.appendChild(div)
 })
 
 let done=filtered.filter(t=>t.done).length
 let percent=filtered.length?Math.round(done/filtered.length*100):0
-
-document.getElementById("bar").style.width=percent+"%"
+bar.style.width=percent+"%"
 document.getElementById("percent").innerText=percent+"%"
 
+// CALENDAR
 calendar.innerHTML=""
+for(let i=1;i<=30;i++){
+let d=document.createElement("div")
+d.className="day"
+d.innerHTML="<b>"+i+"</b>"
+
 filtered.forEach(t=>{
-let div=document.createElement("div")
-div.innerText=t.date+" - "+t.subject
-calendar.appendChild(div)
+let day=new Date(t.date).getDate()
+if(day===i){
+d.innerHTML+="<br>"+t.subject
+}
 })
 
+calendar.appendChild(d)
+}
+
+}
+
+function rangeSelect(){
+return document.getElementById("range").value
 }
 
 </script>
