@@ -21,6 +21,7 @@ nav button{margin:5px;padding:8px 15px;cursor:pointer;}
 .hidden{display:none;}
 .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
 .day{background:white;padding:10px;border-radius:5px;min-height:80px;font-size:12px;}
+.calendar-controls{margin-bottom:10px;text-align:center;}
 </style>
 
 </head>
@@ -38,7 +39,6 @@ nav button{margin:5px;padding:8px 15px;cursor:pointer;}
 
 <!-- TASKS PAGE -->
 <div id="tasksPage" class="container">
-
 <div class="left">
 
 <div class="card">
@@ -73,15 +73,16 @@ nav button{margin:5px;padding:8px 15px;cursor:pointer;}
 </div>
 
 </div>
-
 </div>
 
 <!-- CALENDAR PAGE -->
 <div id="calendarPage" class="container hidden">
 <div class="card" style="width:100%">
 <h3>Calendar</h3>
-<button onclick="changeMonth(-7)">Previous</button>
-<button onclick="changeMonth(7)">Next</button>
+<div class="calendar-controls">
+<button onclick="changeCalendar(-1)">Previous</button>
+<button onclick="changeCalendar(1)">Next</button>
+</div>
 <div id="calendar" class="calendar"></div>
 </div>
 </div>
@@ -91,7 +92,7 @@ nav button{margin:5px;padding:8px 15px;cursor:pointer;}
 <div class="card">
 <h3>Settings</h3>
 <label>Show range:</label>
-<select id="range" onchange="render()">
+<select id="range" onchange="resetCalendar()">
 <option value="7">1 week</option>
 <option value="14">2 weeks</option>
 <option value="21">3 weeks</option>
@@ -147,6 +148,7 @@ nav button{margin:5px;padding:8px 15px;cursor:pointer;}
 
 <h3>About the Author</h3>
 <p>Aluadin Damir – BIL, IB MYP Year 5</p>
+<p>Мотивация автора: лично сталкивался с проблемой эффективной организации задач и часто пропускал сроки, что снижало продуктивность. Этот проект создан, чтобы помочь студентам планировать задачи лучше и избегать подобных проблем.</p>
 
 <h3>Timeline</h3>
 <ul>
@@ -189,20 +191,21 @@ file:null
 render()
 }
 
-function clearAll(){tasks=[];render()}
+function clearAll(){tasks=[]; render()}
 function completeTask(){if(selected==null) return; tasks[selected].done=true; render()}
 function attachFile(){if(selected==null) return; let f=fileInput.files[0]; tasks[selected].file=f?f.name:null; render()}
-function rangeSelect(){return document.getElementById("range").value}
-function changeMonth(days){calendarOffset+=days; render()}
+function rangeSelect(){return parseInt(document.getElementById("range").value)}
+function resetCalendar(){calendarOffset=0; render()}
+function changeCalendar(days){calendarOffset+=days; render()}
 
 function render(){
-let range=parseInt(rangeSelect())
-let now=new Date()
+let range = rangeSelect()
+let now = new Date()
 
-let filtered=tasks.filter(t=>{
-let d=new Date(t.date)
-let diff=(d-now)/(1000*60*60*24)
-return diff<=range
+let filtered = tasks.filter(t=>{
+  let d = new Date(t.date)
+  let diff = (d-now)/(1000*60*60*24)
+  return diff<=range
 })
 
 filtered.sort((a,b)=> new Date(a.date)-new Date(b.date))
@@ -224,23 +227,23 @@ document.getElementById("percent").innerText=percent+"%"
 
 // CALENDAR
 calendar.innerHTML=""
-let startDate=new Date()
+let startDate = new Date()
 startDate.setDate(startDate.getDate()+calendarOffset)
 for(let i=0;i<range;i++){
-let d=document.createElement("div")
-d.className="day"
-let dayDate=new Date(startDate)
-dayDate.setDate(startDate.getDate()+i)
-d.innerHTML="<b>"+dayDate.getDate()+"/"+(dayDate.getMonth()+1)+"</b>"
+  let d = document.createElement("div")
+  d.className="day"
+  let dayDate = new Date(startDate)
+  dayDate.setDate(startDate.getDate()+i)
+  d.innerHTML = "<b>"+dayDate.getDate()+"/"+(dayDate.getMonth()+1)+"</b>"
 
-filtered.forEach(t=>{
-let tDate=new Date(t.date)
-if(tDate.toDateString()===dayDate.toDateString()){
-d.innerHTML+="<br>"+t.subject
-}
-})
+  filtered.forEach(t=>{
+    let tDate=new Date(t.date)
+    if(tDate.toDateString()===dayDate.toDateString()){
+      d.innerHTML += "<br>"+t.subject
+    }
+  })
 
-calendar.appendChild(d)
+  calendar.appendChild(d)
 }
 }
 </script>
