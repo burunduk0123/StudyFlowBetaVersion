@@ -1,248 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>StudyFlow - Beta Version</title>
-<style>
-/* ОСНОВНЫЕ СТИЛИ */
-body{font-family:'Segoe UI', Arial, sans-serif;margin:0;background:#f0f2f5;color:#333;}
-header{background:#5bc0de;padding:30px;text-align:center;font-size:42px;color:white;font-weight:bold;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-nav{background:#343a40;padding:10px;text-align:center;position:sticky;top:0;z-index:1000;}
-nav button{margin:5px;padding:10px 20px;cursor:pointer;border:none;border-radius:5px;background:#495057;color:white;font-weight:500;transition:0.3s;}
-nav button:hover{background:#5bc0de;color:white;}
-.container{display:flex;padding:20px;gap:20px;max-width:1200px;margin:0 auto;}
-.left{width:300px;}
-.right{flex:1;}
-.card{background:white;padding:20px;margin-bottom:20px;border-radius:12px;box-shadow:0 4px 6px rgba(0,0,0,0.05);}
-.hidden{display:none;}
-
-/* ТАСКИ И КАЛЕНДАРЬ */
-.task{background:#f8f9fa;padding:12px;margin:10px 0;border-radius:8px;border-left:5px solid #5bc0de;cursor:pointer;transition:0.2s;}
-.task:hover{transform: translateX(5px);}
-.done{opacity:0.6;text-decoration:line-through;border-left-color:#28a745;}
-.progress{background:#e9ecef;border-radius:10px;height:20px;overflow:hidden;}
-.bar{height:100%;background:linear-gradient(90deg, #5cb85c, #4cae4c);width:0%;transition:0.5s;}
-.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
-.day{background:#fff;padding:10px;border:1px solid #dee2e6;border-radius:8px;min-height:90px;font-size:13px;}
-.day-header{font-weight:bold;text-align:center;padding:5px;color:#5bc0de;}
-
-/* СТИЛИ ДЛЯ DEVELOPMENT PROCESS */
-.timeline {position: relative; padding: 20px 0;}
-.timeline-item {border-left: 3px solid #5bc0de; padding: 0 0 30px 25px; position: relative;}
-.timeline-item::before {content: ''; position: absolute; left: -10px; top: 0; width: 18px; height: 18px; background: #5bc0de; border-radius: 50%; border: 3px solid white;}
-.evidence-box {background: #f1f3f5; border-radius: 8px; padding: 15px; margin-top: 10px;}
-code {background: #2d2d2d; color: #ccc; padding: 15px; display: block; border-radius: 6px; font-family: 'Consolas', monospace; font-size: 14px; overflow-x: auto; margin: 10px 0;}
-.comparison {display: grid; grid-template-columns: 1fr 1fr; gap: 15px;}
-.badge {display: inline-block; padding: 3px 10px; background: #5bc0de; color: white; border-radius: 20px; font-size: 12px; margin-bottom: 5px;}
-</style>
-</head>
-<body>
-
-<header>StudyFlow</header>
-
-<nav>
-    <button onclick="showPage('tasks')">Tasks</button>
-    <button onclick="showPage('calendar')">Calendar</button>
-    <button onclick="showPage('dev')">Development Process</button>
-    <button onclick="showPage('settings')">Settings</button>
-    <button onclick="showPage('info')">Project Info</button>
-</nav>
-
-<!-- TASKS PAGE -->
-<div id="tasksPage" class="container">
-    <div class="left">
-        <div class="card">
-            <h3>Add New Task</h3>
-            <input id="subject" style="width:90%; padding:8px;" placeholder="Subject (e.g. Math)"><br><br>
-            <input id="desc" style="width:90%; padding:8px;" placeholder="What to do?"><br><br>
-            <input id="date" type="date" style="width:90%; padding:8px;"><br><br>
-            <button onclick="addTask()" style="width:100%; background:#28a745; color:white; border:none; padding:12px; border-radius:6px; cursor:pointer;">Add Task</button>
-        </div>
-    </div>
-    <div class="right">
-        <div class="card">
-            <h3>My Tasks</h3>
-            <div id="taskList"></div>
-            <button onclick="completeTask()">Mark Selected as Done</button>
-            <button onclick="clearAll()">Reset All</button>
-        </div>
-        <div class="card">
-            <h3>Overall Progress</h3>
-            <div class="progress"><div id="bar" class="bar"></div></div>
-            <p id="percent" style="text-align:right; font-weight:bold; margin-top:5px;">0%</p>
-        </div>
-    </div>
-</div>
-
-<!-- CALENDAR PAGE -->
-<div id="calendarPage" class="container hidden">
-    <div class="card" style="width:100%">
-        <h3>Study Calendar</h3>
-        <div style="text-align:center; margin-bottom:20px;">
-            <button onclick="changeCalendar(-1)">« Previous Week</button>
-            <button onclick="changeCalendar(1)">Next Week »</button>
-        </div>
-        <div id="calendar" class="calendar"></div>
-    </div>
-</div>
-
-<!-- DEVELOPMENT PROCESS PAGE (НОВЫЙ РАЗДЕЛ) -->
-<div id="devPage" class="container hidden" style="flex-direction: column;">
-    <div class="card">
-        <h1>Development Process</h1>
-        <p>Evolution of the product from Alpha stage to the current Beta version.</p>
-        
-        <hr>
-
-        <h2>1. Version Timeline</h2>
-        <div class="timeline">
-            <div class="timeline-item">
-                <span class="badge">Alpha Version</span>
-                <h3>Initial Prototype: Investment Tracker</h3>
-                <p>The product started as an unfinished investment tracking tool. It lacked functionality and focus.</p>
-                <div class="evidence-box"><strong>Evidence:</strong> [Insert Alpha Screenshot Here]</div>
-            </div>
-            
-            <div class="timeline-item">
-                <span class="badge">Beta Version</span>
-                <h3>Current Stage: StudyFlow (Study Helper)</h3>
-                <p>Based on needs, the project pivoted to a student productivity tool. Added dynamic task management, calendar, and progress tracking.</p>
-                <div class="evidence-box"><strong>Evidence:</strong> [Insert Beta Demo Video/Link Here]</div>
-            </div>
-            
-            <div class="timeline-item" style="border:none">
-                <span class="badge" style="background:#6c757d">Final Version</span>
-                <h3>Future Improvements</h3>
-                <p>Planned integration of data persistence (LocalStorage), AI scheduling, and a mobile-responsive interface.</p>
-            </div>
-        </div>
-
-        <hr>
-
-        <h2>2. Feedback Evidence</h2>
-        <div class="comparison">
-            <div class="card" style="background:#e3f2fd; border:none;">
-                <h4>Alpha Stage Feedback</h4>
-                <p><strong>Source:</strong> Sponsor Interview</p>
-                <ul>
-                    <li><em>Question:</em> Is investment tracking useful for you?</li>
-                    <li><em>Feedback:</em> "Students need help with daily homework more than finance."</li>
-                    <li><em>Response:</em> Completely changed the project theme to study organization.</li>
-                </ul>
-            </div>
-            <div class="card" style="background:#e8f5e9; border:none;">
-                <h4>Beta Stage Feedback</h4>
-                <p><strong>Source:</strong> User Testing (2 Students)</p>
-                <ul>
-                    <li><em>Usability:</em> Users liked the progress bar but wanted a week-view calendar.</li>
-                    <li><em>Functionality:</em> Suggestion to add file attachments for homework.</li>
-                    <li><em>Response:</em> Implemented the Calendar and "Attach File" features.</li>
-                </ul>
-            </div>
-        </div>
-
-        <hr>
-
-        <h2>3. Evidence of Development</h2>
-        <h3>Code Logic Improvement</h3>
-        <div class="comparison">
-            <div>
-                <strong>Before (Alpha - Static):</strong>
-                <code>// Hardcoded data examples<br>document.write("Task: Invest");</code>
-            </div>
-            <div>
-                <strong>After (Beta - Dynamic):</strong>
-                <code>// Dynamic Array Processing<br>tasks.push({subject: s, done: false});<br>render();</code>
-            </div>
-        </div>
-        <p><strong>Tools Used:</strong> VS Code for coding, GitHub for version control, and Chrome DevTools for UI debugging.</p>
-    </div>
-</div>
-
-<!-- SETTINGS PAGE -->
-<div id="settingsPage" class="container hidden">
-    <div class="card">
-        <h3>System Settings</h3>
-        <label>Calendar Range:</label>
-        <select id="range" onchange="resetCalendar()" style="padding:5px;">
-            <option value="7">1 week</option>
-            <option value="14">2 weeks</option>
-            <option value="30">1 month</option>
-        </select>
-    </div>
-</div>
-
-<!-- INFO PAGE -->
-<div id="infoPage" class="container hidden">
-    <div class="card" style="width:100%">
-        <h2>Project Documentation</h2>
-        <p><strong>Author:</strong> Aluadin Damir – BIL, IB MYP Year 5</p>
-        <p><strong>Motivation:</strong> As an MYP student, managing multiple deadlines is difficult. StudyFlow helps prioritize tasks and visualize progress.</p>
-        <h3>Functional Requirements:</h3>
-        <ul>
-            <li>Task creation with subject and date.</li>
-            <li>Automatic progress calculation.</li>
-            <li>Weekly calendar visualization.</li>
-        </ul>
-    </div>
-</div>
-
-<script>
-let tasks = [];
-let selected = null;
-let calendarOffset = 0;
-
-function showPage(pageId) {
-    const pages = ['tasksPage', 'calendarPage', 'devPage', 'settingsPage', 'infoPage'];
-    pages.forEach(id => {
-        document.getElementById(id).classList.add('hidden');
-    });
-    document.getElementById(pageId + 'Page').classList.remove('hidden');
-}
-
 function addTask() {
     let sub = document.getElementById("subject").value;
     let ds = document.getElementById("desc").value;
-    let dt = document.getElementById("date").value;
+    let dt = document.getElementById("date").value; // Получаем строку ГГГГ-ММ-ДД
     if(!sub || !dt) { alert("Please enter subject and date!"); return; }
-    tasks.push({ subject: sub, desc: ds, date: dt, done: false, file: null });
+    
+    tasks.push({ 
+        subject: sub, 
+        desc: ds, 
+        date: dt, // Сохраняем как строку
+        done: false 
+    });
+    
     document.getElementById("subject").value = "";
     document.getElementById("desc").value = "";
     render();
 }
 
-function clearAll() { if(confirm("Are you sure?")) { tasks = []; render(); } }
-
-function completeTask() { 
-    if(selected === null) { alert("Select a task first!"); return; }
-    tasks[selected].done = true; 
-    render(); 
-}
-
-function rangeSelect() { return parseInt(document.getElementById("range").value); }
-function resetCalendar() { calendarOffset = 0; render(); }
-function changeCalendar(weeks) { calendarOffset += weeks * 7; render(); }
-
 function render() {
-    // TASKS
+    // --- РЕНДЕР СПИСКА ЗАДАЧ ---
     let taskList = document.getElementById("taskList");
     taskList.innerHTML = "";
     tasks.forEach((t, i) => {
         let div = document.createElement("div");
-        div.className = "task" + (t.done ? " done" : "") + (selected === i ? " selected" : "");
-        div.style.border = (selected === i) ? "2px solid #5bc0de" : "none";
+        div.className = "task" + (t.done ? " done" : "");
+        if(selected === i) div.style.border = "2px solid #5bc0de";
         div.innerHTML = `<strong>${t.subject}</strong> - ${t.date}<br><small>${t.desc}</small>`;
         div.onclick = () => { selected = i; render(); };
         taskList.appendChild(div);
     });
 
-    // PROGRESS
+    // --- ПРОГРЕСС ---
     let done = tasks.filter(t => t.done).length;
     let percent = tasks.length ? Math.round(done/tasks.length*100) : 0;
     document.getElementById("bar").style.width = percent + "%";
     document.getElementById("percent").innerText = percent + "%";
 
-    // CALENDAR
+    // --- КАЛЕНДАРЬ (ИСПРАВЛЕННЫЙ) ---
     let calDiv = document.getElementById("calendar");
     calDiv.innerHTML = "";
     const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -250,28 +43,33 @@ function render() {
         let h = document.createElement('div'); h.className='day-header'; h.innerText=w; calDiv.appendChild(h);
     });
 
+    // Определяем начало отсчета (сегодня + смещение)
     let startDate = new Date();
+    startDate.setHours(0,0,0,0); // Обнуляем время для точности
     startDate.setDate(startDate.getDate() + calendarOffset);
+    
     let range = rangeSelect();
 
     for(let i=0; i < range; i++){
         let d = new Date(startDate);
         d.setDate(startDate.getDate() + i);
+        
         let dayBox = document.createElement("div");
         dayBox.className = "day";
         dayBox.innerHTML = `<strong>${d.getDate()}/${d.getMonth()+1}</strong>`;
+
+        // Сравниваем только год, месяц и число
         tasks.forEach(t => {
-            if(new Date(t.date).toDateString() === d.toDateString()){
-                dayBox.innerHTML += `<div style="color:#5bc0de; font-size:10px;">• ${t.subject}</div>`;
+            let taskDate = new Date(t.date);
+            // Добавляем поправку на часовой пояс, так как input date дает UTC
+            taskDate.setMinutes(taskDate.getMinutes() + taskDate.getTimezoneOffset());
+            
+            if(taskDate.getFullYear() === d.getFullYear() &&
+               taskDate.getMonth() === d.getMonth() &&
+               taskDate.getDate() === d.getDate()) {
+                dayBox.innerHTML += `<div style="color:#5bc0de; font-size:10px; margin-top:3px; background:#e3f2fd; border-radius:3px; padding:2px;">• ${t.subject}</div>`;
             }
         });
         calDiv.appendChild(dayBox);
     }
 }
-
-// Start
-render();
-</script>
-
-</body>
-</html>
